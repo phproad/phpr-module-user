@@ -1,0 +1,24 @@
+<? Admin_Breadcrumb::add('Users', 'user/users')->add('Groups', 'user/groups')->add($this->app_page_title);?>
+<? Phpr_View::begin_block("view") ?>
+	
+	<?=flash()?>
+
+	<? if (!isset($fatalError)): ?>
+		<div class="form-500">
+			<?=Phpr_Form::open_tag() ?>
+				<? $this->form_render() ?>
+
+				<div id="fixed-toolbar" class="top">
+					<div class="form-toolbar">
+						<?=admin_ajax_button('Create', 'create_on_save', array('class'=>'btn-success')) ?>
+						<?=admin_ajax_button('Cancel', 'create_on_cancel') ?>
+						<div class="clear"></div>
+					</div>
+				</div>
+
+			</form>
+		</div>
+	<? else: ?>
+		<p><a href="<?=url('/user/groups') ?>">Return to the group list</a></p>
+	<? endif ?>
+<? Phpr_View::end_block() ?>
