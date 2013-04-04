@@ -1,6 +1,6 @@
 <? Admin_Breadcrumb::add('Users', 'user/users')->add($this->app_page_title);?>
 <? Phpr_View::begin_block("head") ?>
-	<script type="text/javascript" src="modules/user/assets/javascript/user.js"></script>
+	<script type="text/javascript" src="modules/user/assets/scripts/js/user.js"></script>
 <? Phpr_View::end_block() ?>
 <? Phpr_View::begin_block("view") ?>
 	<?=flash()?>
@@ -22,6 +22,6 @@
 			</form>
 		</div>
 	<? else: ?>
-		<p><a href="<?=url('/user/users') ?>">Return to user list</a></p>
+		<p><a href="<?= url('user/users') ?>">Return to user list</a></p>
 	<? endif ?>
 <? Phpr_View::end_block() ?>

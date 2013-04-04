@@ -2,7 +2,7 @@
 
 class User_Users extends Admin_Controller
 {
-	public $implement = 'Db_ListBehavior, Db_FormBehavior';
+	public $implement = 'Db_List_Behavior, Db_Form_Behavior';
 	public $list_model_class = 'User';
 	public $list_record_url = null;
 
@@ -32,8 +32,8 @@ class User_Users extends Admin_Controller
 		$this->app_page = 'users';
 		$this->app_module_name = 'System';
 
-		$this->list_record_url = url('/user/users/edit/');
-		$this->form_redirect = url('/user/users/');
+		$this->list_record_url = url('user/users/edit');
+		$this->form_redirect = url('user/users');
 	}
 
 	public function index()

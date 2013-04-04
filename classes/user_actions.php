@@ -57,7 +57,7 @@ class User_Actions extends User_Validate_Actions
 		{
 			$user = new User();
 			$user->disable_column_cache('register', false);
-			$user->init_columns_info('register');
+			$user->init_columns('register');
 			$user->validation->focus_prefix = null;
 			$user->validation->get_rule('email')->focus_id('email');
 

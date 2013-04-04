@@ -15,11 +15,6 @@ class User_Group extends Db_ActiveRecord
 		'user_num'=>array('sql'=>"(select count(*) from users where group_id=user_groups.id)", 'type'=>db_number)
 	);
 	
-	public static function create()
-	{
-		return new self();
-	}
-
 	public function define_columns($context = null)
 	{
 		$this->define_column('name', 'Name')->order('asc')->validation()->fn('trim')->required("Please specify the group name");
@@ -80,7 +75,7 @@ class User_Group extends Db_ActiveRecord
 			$codes = array($codes);
 
 		if (!count($codes))
-			return new Db_DataCollection();
+			return new Db_Data_Collection();
 
 		return self::create()->where('code in (?)', array($codes))->find_all();
 	}

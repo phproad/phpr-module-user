@@ -24,11 +24,6 @@ class User extends Phpr_User
 		'name' => "trim(concat(ifnull(first_name, ''), ' ', ifnull(last_name, ' ')))"
 	);
 
-	public static function create()
-	{
-		return new self();
-	}
-
 	public function define_columns($context = null) 
 	{
 		$this->define_column('username', 'Username')->validation()->fn('trim')->fn('ucwords')

@@ -11,11 +11,6 @@ class User_Message_Recipient extends Db_ActiveRecord
 		'message' => array('class_name' => 'User_Message', 'foreign_key' => 'message_id'),
 	);
 
-	public static function create()
-	{
-		return new self();
-	}
-
 	public function define_columns($context = null)
 	{
 		$this->define_relation_column('user', 'user', 'Recipient', db_varchar, '@username')->default_invisible();

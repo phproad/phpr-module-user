@@ -22,11 +22,6 @@ class User_Message extends Db_ActiveRecord
 		'message_html' => db_varchar,
 	);
 
-	public static function create()
-	{
-		return new self();
-	}
-
 	public function define_columns($context = null)
 	{
 		$this->define_column('id', '#');
@@ -253,7 +248,7 @@ class User_Message extends Db_ActiveRecord
 
 	public function eval_message_summary()
 	{
-		return Core_String::limit_words($this->message, 35);
+		return Phpr_String::limit_words($this->message, 35);
 	}
 
 	public function eval_message_html()
