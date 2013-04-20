@@ -3,7 +3,7 @@
 	
 	<?=flash()?>
 
-	<? if (!isset($fatalError)): ?>
+	<? if (!isset($fatal_error)): ?>
 		<div class="form-500">
 			<?=Phpr_Form::open_tag() ?>
 				<? $this->form_render() ?>

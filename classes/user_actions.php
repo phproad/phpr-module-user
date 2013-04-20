@@ -96,13 +96,13 @@ class User_Actions extends User_Validate_Actions
 	// User Reset Pass
 	//
 	
-	public function password_reset()
+	public function reset_password()
 	{
-		if (post('password_restore'))
-			$this->on_password_reset();
+		if (post('password_reset'))
+			$this->on_reset_password();
 	}
 
-	public function on_password_reset()
+	public function on_reset_password()
 	{
 		try
 		{
@@ -140,15 +140,14 @@ class User_Actions extends User_Validate_Actions
 		$this->user->load_user_preferences();
 	}
 
-	public function on_account_update()
+	public function on_update_account()
 	{
 		if (!$this->user)
 			throw new Cms_Exception(__('You must be logged in to perform this action', true));
 
 		$validation = new Phpr_Validation();
 
-		if ($reset_pass = post_array('User', 'password'))
-		{
+		if ($reset_pass = post_array('User', 'password')) {
 			$validation->add('old_password', 'Old Password')->fn('trim')->required(__('Please specify the old password', true));
 			$validation->add('password', 'Password')->fn('trim')->required(__('Please specify new password', true));
 			$validation->add('password_confirm', 'Confirm Password')->fn('trim')->matches('password', __('Password and confirmation password do not match.', true));
@@ -157,17 +156,17 @@ class User_Actions extends User_Validate_Actions
 		if (!$validation->validate(post('User')))
 			$validation->throw_exception();
 
-		if($reset_pass && Phpr_SecurityFramework::create()->salted_hash($validation->field_values['old_password']) != $this->user->password)
+		if ($reset_pass && Phpr_SecurityFramework::create()->salted_hash($validation->field_values['old_password']) != $this->user->password)
 			$validation->set_error(__('Current password entered is invalid', true), 'old_password', true);
 
-		if($reset_pass)
+		if ($reset_pass)
 			unset($validation->field_values['old_password']);
 		else
 			$this->user->password = null;
 
 		$this->user->save(post('User'));
 
-		if(!post('no_flash', false))
+		if (!post('no_flash', false))
 			Phpr::$session->flash['success'] = __("Details saved successfully!", true);
 
 		$redirect = post('redirect');
@@ -175,7 +174,7 @@ class User_Actions extends User_Validate_Actions
 			Phpr::$response->redirect($redirect);
 	}
 
-	public function on_avatar_update()
+	public function on_update_avatar()
 	{
 		$avatar_id = post('user_avatar');
 
@@ -197,7 +196,7 @@ class User_Actions extends User_Validate_Actions
 	// Preferences
 	// 
 
-	public function on_preferences_update()
+	public function on_update_preferences()
 	{
 		if (!$this->user)
 			throw new Cms_Exception(__('You must be logged in to perform this action', true));
@@ -212,7 +211,7 @@ class User_Actions extends User_Validate_Actions
 		$this->user->password = null;
 		$this->user->save();
 
-		if(!post('no_flash', false))
+		if (!post('no_flash', false))
 			Phpr::$session->flash['success'] = __("Details saved successfully!", true);
 
 		$redirect = post('redirect');
@@ -232,11 +231,11 @@ class User_Actions extends User_Validate_Actions
 
 	public function message()
 	{
-		$this->on_message_view();
+		$this->on_message();
 		$this->page->title_name = __('Conversation with %s', $this->data['opp_user_string']);
 	}
 
-	public function on_message_view()
+	public function on_message()
 	{
 		try 
 		{
@@ -273,7 +272,7 @@ class User_Actions extends User_Validate_Actions
 		}        
 	}
 
-	public function on_message_send()
+	public function on_send_message()
 	{
 		if (!$this->user)
 			throw new Cms_Exception(__('You must be logged in to perform this action', true));
@@ -315,7 +314,7 @@ class User_Actions extends User_Validate_Actions
 		else
 			$message_thread->mark_as_unread($this->user);
 
-		if(!post('no_flash', false))
+		if (!post('no_flash', false))
 			Phpr::$session->flash['success'] = __("Message sent successfully!", true);
 
 		$redirect = post('redirect');
@@ -329,7 +328,7 @@ class User_Actions extends User_Validate_Actions
 		$this->data['messages'] = $messages;
 	}
 
-	public function on_messages_search()
+	public function on_search_messages()
 	{
 		if (!$this->user)
 			throw new Cms_Exception(__('You must be logged in to perform this action', true));
@@ -344,7 +343,7 @@ class User_Actions extends User_Validate_Actions
 		$this->data['messages'] = $messages;
 	}
 
-	public function on_message_remove()
+	public function on_delete_message()
 	{
 		if (!$this->user)
 			throw new Cms_Exception(__('You must be logged in to perform this action', true));
@@ -352,7 +351,7 @@ class User_Actions extends User_Validate_Actions
 		$message_id = post('message_id');
 		User_Message::delete_message($message_id, $this->user->id);
 
-		if(!post('no_flash', false))
+		if (!post('no_flash', false))
 			Phpr::$session->flash['success'] = __("Message sent successfully!", true);
 
 		$redirect = post('redirect');
