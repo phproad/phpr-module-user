@@ -69,7 +69,7 @@ class User_Message extends Db_ActiveRecord
 			'user_id' => $user->id
 		);
 
-		$this->join('user_message_recipients', 'user_message_recipients.message_id = ifnull(user_messages.thread_id, user_messages.id)');
+		$this->join('user_message_recipients', 'user_message_recipients.message_id = ifnull(user_messages.thread_id, user_messages.id) AND user_message_recipients.user_id='.$user->id);
 		$this->where('user_messages.from_user_id=:user_id OR user_message_recipients.user_id=:user_id', $bind);
 		$this->where('user_messages.is_latest=1');
 		$this->order('user_messages.sent_at desc');
@@ -106,6 +106,51 @@ class User_Message extends Db_ActiveRecord
 		return $this;
 	}
 
+	// Getters
+	// 
+
+	public function get_thread()
+	{
+		if ($this->thread_id && $this->thread)
+			return $this->thread;
+		else
+			return $this;
+	}
+
+	public function get_url($page=null, $add_hostname=false)
+	{
+		if (!$page) 
+			$page = Cms_Page::get_url_from_action('user:message');
+
+		return root_url($page.'/'.$this->id, $add_hostname);
+	}
+
+	public function get_other_recipients($user)
+	{
+		$thread = $this->get_thread();
+		$recipients = $thread->recipients;
+		if ($this->from_user_id == $user->id)
+			return $recipients;
+
+		$recipients = $thread->recipients->exclude($user->id, 'user_id');
+		$recipients = $recipients->add($this->from_user);
+		return $recipients;
+	}
+
+	public function get_other_recipients_string($user)
+	{
+		$bind = array(
+			'user_id' => $user->id,
+			'message_id' => ($this->thread_id) ? $this->thread_id : $this->id
+		);
+		return Db_Helper::scalar("select group_concat(distinct users.username separator ', ') from user_message_recipients
+			join user_messages on user_messages.id = user_message_recipients.message_id 
+			join users on users.id = user_message_recipients.user_id OR users.id = user_messages.from_user_id 
+			where user_message_recipients.message_id = :message_id
+			and users.id != :user_id
+			", $bind);
+	}
+
 	// Service methods
 	// 
 
@@ -117,15 +162,20 @@ class User_Message extends Db_ActiveRecord
 		if (!is_array($users))
 			$users = array($users);
 
-		foreach ($users as $user)
-		{
+		// Prevent duplicates
+		$users = array_unique($users);
+
+		$thread = $this->get_thread();
+
+		foreach ($users as $user) {
 			$recipient = User_Message_Recipient::create();
 			$recipient->user_id = $user;
-			$recipient->message_id = $this->id;
+			$recipient->message_id = $thread->id;
 			$recipient->is_new = ($user != $this->from_user_id);
 			$recipient->save();
+			$thread->recipients->add($recipient);
 		}
-		
+
 		return $this;
 	}
 
@@ -166,14 +216,6 @@ class User_Message extends Db_ActiveRecord
 		return Db_Helper::scalar('select count(*) from user_message_recipients where user_id=:user_id and is_new = 1', $bind);
 	}
 
-	public function get_thread()
-	{
-		if ($this->thread_id && $this->thread)
-			$this->thread;
-		else
-			return $this;
-	}
-
 	public function is_recipient($user)
 	{
 		$recipients = $this->recipients;
@@ -183,55 +225,29 @@ class User_Message extends Db_ActiveRecord
 		return $recipients->find($user->id, 'user_id') ? true : false;
 	}
 
-	public function get_other_recipients($user)
-	{
-		$recipients = $this->recipients;
-		if ($this->from_user_id == $user->id)
-			return $recipients;
-
-		$recipients = $this->recipients->exclude($user->id, 'user_id');
-		$recipients = $recipients->add($this->from_user);
-		return $this; 
-	}
-
-	public function get_other_recipients_string($user)
-	{
-		$bind = array(
-			'user_id' => $user->id,
-			'message_id' => ($this->thread_id) ? $this->thread_id : $this->id
-		);
-		return Db_Helper::scalar("select group_concat(distinct users.username separator ', ') from user_message_recipients
-			join user_messages on user_messages.id = user_message_recipients.message_id 
-			join users on users.id = user_message_recipients.user_id OR users.id = user_messages.from_user_id 
-			where user_message_recipients.message_id = :message_id
-			and users.id != :user_id
-			", $bind);
-	}
-
 	public static function reset_thread_latest($thread_id)
 	{
 		$bind = array('thread_id' => $thread_id);
 		Db_Helper::query('update user_messages set is_latest = null where is_latest = 1 and (thread_id=:thread_id or id=:thread_id)', $bind);
 	}
 
-	public static function delete_message($message_id, $user_id)
+	public static function delete_message_from_id($message_id, $user_id)
 	{
 		$recipient = User_Message_Recipient::create()->where('user_id=?', $user_id)->where('message_id=?', $message_id)->find();
 		if ($recipient)
 		{
-			$recipient->deleted_at = Phpr_DateTime::now();
-			$recipient->save();
+			$recipient->delete_recipient();
 		}
 
 		$message = User_Message::create()->where('from_user_id=?', $user_id)->find($message_id);
 		if ($message)
 		{
 			$message->deleted_at = Phpr_DateTime::now();
-			$message->save();            
+			$message->save();
 		}
 	}
 
-	public static function delete_message_by_object($object_class, $object_id)
+	public static function delete_message_from_object($object_class, $object_id)
 	{
 		$bind = array('object_id'=>$object_id, 'object_class'=>$object_class);
 		$message_ids = Db_Helper::query_array("select id from user_messages where (user_messages.master_object_id=:object_id) AND (user_messages.master_object_class=:object_class)", $bind);
@@ -241,6 +257,22 @@ class User_Message extends Db_ActiveRecord
 		
 		Db_Helper::query("delete from user_message_recipients where message_id in (:id)", array('id'=>$message_ids));
 		Db_Helper::query("delete from user_messages where id in (:id)", array('id'=>$message_ids));
+	}
+
+	public function set_notify_vars(&$template, $prefix='')
+	{
+		$message_url = $this->get_url(null, true);
+
+		$template->set_vars(array(
+			$prefix.'url' => '<a href="'.$message_url.'">'.h($message_url).'</a>',
+			$prefix.'link' => '<a href="'.$message_url.'">'.h($message_url).'</a>',
+		), false);
+
+		$template->set_vars(array(
+			$prefix.'message' => $this->message,
+			$prefix.'subject' => $this->subject,
+			$prefix.'sent_at' => Phpr_DateTime::format_safe($this->sent_at, '%x'),
+		));
 	}
 
 	// Custom columns

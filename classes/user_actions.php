@@ -232,7 +232,9 @@ class User_Actions extends User_Validate_Actions
 	public function message()
 	{
 		$this->on_message();
-		$this->page->title_name = __('Conversation with %s', $this->data['opp_user_string']);
+
+		$opp_user_string = (isset($this->data['opp_user_string'])) ? $this->data['opp_user_string'] : '???';
+		$this->page->title_name = __('Conversation with %s', $opp_user_string);
 	}
 
 	public function on_message()
@@ -245,11 +247,10 @@ class User_Actions extends User_Validate_Actions
 				throw new Exception('Missing message id');
 
 			$message = User_Message::create()->find($message_id);
-			$message_thread = $message->get_thread();
-
 			if (!$message)
 				throw new Exception('Message not found');
 
+			$message_thread = $message->get_thread();
 			$messages = User_Message::create();
 			$messages = $messages->apply_thread($message_thread->id)->find_all();
 
@@ -274,6 +275,8 @@ class User_Actions extends User_Validate_Actions
 
 	public function on_send_message()
 	{
+		$_POST = array_merge($_POST, post('Message', array()));
+
 		if (!$this->user)
 			throw new Cms_Exception(__('You must be logged in to perform this action', true));
 
@@ -314,6 +317,11 @@ class User_Actions extends User_Validate_Actions
 		else
 			$message_thread->mark_as_unread($this->user);
 
+		// Notify other recipients
+		foreach ($message->get_other_recipients($this->user) as $recipient) {
+			Notify::trigger('user:new_message', array('message'=>$message, 'user'=>$recipient->user));
+		}
+
 		if (!post('no_flash', false))
 			Phpr::$session->flash['success'] = __("Message sent successfully!", true);
 
@@ -349,7 +357,7 @@ class User_Actions extends User_Validate_Actions
 			throw new Cms_Exception(__('You must be logged in to perform this action', true));
 
 		$message_id = post('message_id');
-		User_Message::delete_message($message_id, $this->user->id);
+		User_Message::delete_message_from_id($message_id, $this->user->id);
 
 		if (!post('no_flash', false))
 			Phpr::$session->flash['success'] = __("Message sent successfully!", true);

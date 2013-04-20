@@ -19,4 +19,11 @@ class User_Message_Recipient extends Db_ActiveRecord
 		$this->define_column('deleted_at', 'Deleted At');        
 	}
 
+	public function delete_recipient()
+	{
+		Db_Helper::query("update user_message_recipients set deleted_at = now() where message_id=:message_id and user_id=:user_id", array(
+			'message_id' => $this->message_id,
+			'user_id' => $this->user_id
+		));
+	}
 }
