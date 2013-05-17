@@ -57,8 +57,10 @@ class User_Message extends Db_ActiveRecord
 	public function apply_thread($message)
 	{
 		$message_id = ($message instanceof User_Message) ? $message->id : $message;
-		$bind = array('thread_id' => $message_id);
-		$this->where('user_messages.thread_id=:thread_id or user_messages.id=:thread_id', $bind);
+		$thread_id = ($message instanceof User_Message) ? $message->thread_id : $message;
+		$bind = array('message_id' => $message_id, 'thread_id' => $thread_id);
+		$this->where('user_messages.thread_id=:thread_id or user_messages.id=:message_id', $bind);
+
 		return $this;
 	}
 

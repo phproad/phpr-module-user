@@ -109,7 +109,7 @@ class User extends Phpr_User
 					$this->validation->set_error('Please provide a password.', 'password', true);
 				else
 					$this->password = $this->fetched['password'];
-			} else
+			} else if (!isset($this->fetched['password']) || $this->password != $this->fetched['password'])
 				$this->password = Phpr_SecurityFramework::create()->salted_hash($this->password);
 		}
 

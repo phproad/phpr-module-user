@@ -53,44 +53,37 @@ class User_Actions extends User_Validate_Actions
 
 	public function on_register()
 	{
-		try
-		{
-			$user = new User();
-			$user->disable_column_cache('register', false);
-			$user->init_columns('register');
-			$user->validation->focus_prefix = null;
-			$user->validation->get_rule('email')->focus_id('email');
+		$user = new User();
+		$user->disable_column_cache('register', false);
+		$user->init_columns('register');
+		$user->validation->focus_prefix = null;
+		$user->validation->get_rule('email')->focus_id('email');
 
-			if (!post_array('User', 'password'))
-				$user->generate_password();
+		if (!post_array('User', 'password'))
+			$user->generate_password();
 
-			if (post('user_no_password_confirm') && post_array('User', 'password'))
-				$_POST['User']['password_confirm'] = post_array('User', 'password');
+		if (post('user_no_password_confirm') && post_array('User', 'password'))
+			$_POST['User']['password_confirm'] = post_array('User', 'password');
 
-			// Fee check
-			Phpr_Module_Manager::module_exists('payment') && Payment_Fee::trigger_event('User_Register_Event', array('handler'=>'user:on_register'));
+		// Fee check
+		Phpr_Module_Manager::module_exists('payment') && Payment_Fee::trigger_event('User_Register_Event', array('handler'=>'user:on_register'));
 
-			$user->save(post('User'));
+		$user->save(post('User'));
 
-			// Send notification
-			Notify::trigger('user:register_confirm', array('user'=>$user));
+		// Send notification
+		Notify::trigger('user:register_confirm', array('user'=>$user));
 
-			if (post('flash'))
-				Phpr::$session->flash['success'] = post('flash');
+		if (post('flash'))
+			Phpr::$session->flash['success'] = post('flash');
 
-			if (post('user_auto_login'))
-				Phpr::$frontend_security->user_login($user->id);
+		if (post('user_auto_login'))
+			Phpr::$frontend_security->user_login($user->id);
 
-			$redirect = post('redirect');
-			if ($redirect)
-				Phpr::$response->redirect($redirect);
+		$redirect = post('redirect');
+		if ($redirect)
+			Phpr::$response->redirect($redirect);
 
-			return $user;
-		}
-		catch (Exception $ex)
-		{
-			throw new Cms_Exception($ex->getMessage());
-		}        
+		return $user;   
 	}
 
 	// User Reset Pass
@@ -225,7 +218,7 @@ class User_Actions extends User_Validate_Actions
 	public function messages()
 	{
 		$messages = User_Message::create();
-		$messages->apply_user_threads($this->user);
+		$messages->apply_user_messages($this->user);
 		$this->data['messages'] = $messages;
 	}
 
@@ -331,6 +324,7 @@ class User_Actions extends User_Validate_Actions
 
 		$thread = ($is_reply) ? $message_thread : $message;
 		$messages = User_Message::create();
+
 		$messages = $messages->apply_thread($thread)->find_all();
 		$this->data['message'] = $message;
 		$this->data['messages'] = $messages;
@@ -342,7 +336,7 @@ class User_Actions extends User_Validate_Actions
 			throw new Cms_Exception(__('You must be logged in to perform this action', true));
 
 		$messages = User_Message::create();
-		$messages = $messages->apply_user_threads($this->user);
+		$messages = $messages->apply_user_messages($this->user);
 
 		$where = Db_Helper::format_search_query(post('search'), array('user_messages.message', 'user_messages.subject'), 2);
 		if ($where != '1=1')
