@@ -6,3 +6,4 @@
 #6|1.0.6  Minor improvement
 #7|1.0.7  Improve attachment handling
 #8|1.0.8  Allow thread ID to be a string
+#9|1.0.9  Usernames are no longer capitalized
