@@ -1,13 +1,9 @@
 jQuery(document).ready(function($){
-
-	// Country event
 	$('#User_country_id').bind('change', function(){
-		$('User_country_id').getForm().sendPhpr(
-			'onUpdateStatesList',
-			{
-				loadIndicator: {show: false}
-			}
-		)
-	});
 
+		$('#User_country_id').phpr().post('on_update_states_list', {
+			loadIndicator: { show: false }
+		}).send();
+
+	});
 });
