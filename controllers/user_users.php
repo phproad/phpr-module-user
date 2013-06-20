@@ -23,7 +23,7 @@ class User_Users extends Admin_Controller
 
 	protected $required_permissions = array('user:manage_users');
 
-	public $global_handlers = array('onUpdateStatesList');
+	public $global_handlers = array('on_update_states_list');
 
 	public function __construct()
 	{
@@ -41,13 +41,14 @@ class User_Users extends Admin_Controller
 		$this->app_page_title = 'Users';
 	}
 
-	protected function onUpdateStatesList()
+	protected function on_update_states_list()
 	{
 		$data = post('User');
 
 		$form_model = $this->form_create_model_object();
 		$form_model->country_id = $data['country_id'];
-		echo ">>form_field_container_state_idUser<<";
+		
+		$this->prepare_partial('form_field_container_state_idUser');
 		$this->form_render_field_container($form_model, 'state');
 	}
 

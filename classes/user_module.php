@@ -8,7 +8,7 @@ class User_Module extends Core_Module_Base
 		return new Core_Module_Detail(
 			"User",
 			"Front end user module",
-			"PHP Road",
+			"PHPRoad",
 			"http://phproad.com/"
 		);
 	}

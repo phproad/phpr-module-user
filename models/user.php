@@ -26,7 +26,7 @@ class User extends Phpr_User
 
 	public function define_columns($context = null) 
 	{
-		$this->define_column('username', 'Username')->validation()->fn('trim')->fn('ucwords')
+		$this->define_column('username', 'Username')->validation()->fn('trim')
 				->regexp(',^[/a-z0-9_\.-]*$,i', "Username can contain only letters, numbers and signs _, -, /, and .")
 				->method('validate_username');
 

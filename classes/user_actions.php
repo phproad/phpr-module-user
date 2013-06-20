@@ -56,6 +56,8 @@ class User_Actions extends User_Validate_Actions
 		$user = new User();
 		$user->disable_column_cache('register', false);
 		$user->init_columns('register');
+		$user->guest = false;
+		
 		$user->validation->focus_prefix = null;
 		$user->validation->get_rule('email')->focus_id('email');
 
@@ -386,7 +388,7 @@ class User_Actions extends User_Validate_Actions
 			$file = $user->save_attachment_from_post('avatar', $post_post, true);
 			$result = array(
 				'id' => $file->id,
-				'thumb'=> (($file->is_image()) ? $file->getThumbnailPath($size['width'], $size['height'], true, array('mode'=>'crop')) : null)
+				'thumb'=> (($file->is_image()) ? $file->get_thumbnail_path($size['width'], $size['height'], true, array('mode'=>'crop')) : null)
 			);
 		}
 
