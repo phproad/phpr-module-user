@@ -68,6 +68,7 @@ class User_Actions extends User_Validate_Actions
 		// Fee check
 		Phpr_Module_Manager::module_exists('payment') && Payment_Fee::trigger_event('User_Register_Event', array('handler'=>'user:on_register'));
 
+		$user->guest = 0;
 		$user->save(post('User'));
 
 		// Send notification
