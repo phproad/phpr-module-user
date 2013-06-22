@@ -28,4 +28,15 @@ class User_Module extends Core_Module_Base
 		$host->add_permission_field($this, 'manage_users', 'Manage users', 'left')->display_as(frm_checkbox)->comment('Manage service users');
 	}
 
+	public function build_quicksearch_feed($feed, $query)
+	{
+		$feed->add('users', User::create(), array(
+			'item_name' => 'User', 
+			'icon' => 'user',
+			'label_field' => 'username',
+			'search_fields' => array('username', 'email', 'first_name', 'last_name'),
+			'link' => url('user/users/edit/%s')
+		));	
+	}
+
 }
