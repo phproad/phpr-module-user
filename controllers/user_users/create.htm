@@ -8,7 +8,8 @@
 	<? if (!isset($fatal_error)): ?>
 		<div class="form-fluid">
 			<?=Phpr_Form::open_tag() ?>
-
+				<input type="hidden" name="User[guest]" value="0" />
+				
 				<? $this->form_render() ?>
 
 				<div id="fixed-toolbar" class="top">
