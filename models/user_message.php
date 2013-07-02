@@ -98,6 +98,7 @@ class User_Message extends Db_ActiveRecord
 	{
 		$bind = array('user_id' => $user->id);
 		$this->join('user_message_recipients', 'user_message_recipients.message_id = user_messages.id');
+		$this->where('deleted_at is null');
 		
 		if ($sent_items)
 			$this->where('user_messages.from_user_id=:user_id', $bind);
