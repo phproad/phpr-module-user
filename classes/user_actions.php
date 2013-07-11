@@ -219,7 +219,7 @@ class User_Actions extends User_Validate_Actions
 	public function messages()
 	{
 		$messages = User_Message::create();
-		$messages->apply_user_messages($this->user);
+		$messages->apply_user_threads($this->user);
 		$this->data['messages'] = $messages;
 	}
 

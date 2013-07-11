@@ -105,6 +105,9 @@ class User_Message extends Db_ActiveRecord
 		else
 			$this->where('user_message_recipients.user_id=:user_id', $bind);
 
+		// @todo
+		// $this->select("(select ...) as recipients_string");
+		
 		$this->order('sent_at desc');
 		return $this;
 	}
