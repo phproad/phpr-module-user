@@ -46,6 +46,7 @@ class User extends Phpr_User
 
 	public function define_form_fields($context = null)
 	{
+		$this->add_form_field('guest', 'left')->tab('User');
 		$this->add_form_field('username', 'left')->tab('User');
 		$this->add_form_field('group', 'right')->tab('User');
 
