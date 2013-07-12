@@ -7,3 +7,4 @@
 #7|1.0.7  Improve attachment handling
 #8|1.0.8  Allow thread ID to be a string
 #9|1.0.9  Usernames are no longer capitalized
+#10|1.0.10  Fix bug where new users are flagged as guests
