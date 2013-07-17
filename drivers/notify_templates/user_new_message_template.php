@@ -33,6 +33,10 @@ class User_New_Message_Template extends Notify_Template_Base
 		$from_user = $message->from_user;
 		$from_user->set_notify_vars($template, 'from_user_');
 
+		// No point sending this to self
+		if ($user->id == $from_user->id)
+			return;
+
 		$template->set_vars(array());
 
 		$template->add_recipient($user);
