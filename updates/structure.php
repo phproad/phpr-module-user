@@ -7,7 +7,7 @@ $table = Db_Structure::table('users');
 	$table->column('last_name', db_varchar, 100);
 	$table->column('email', db_varchar, 50);
 	$table->column('password', db_varchar, 50);
-	$table->column('guest', db_bool)->set_default(false);
+	$table->column('guest', db_bool)->defaults(false);
 	$table->column('enabled', db_bool);
 	$table->column('signup_ip', db_varchar, 15);
 	$table->column('last_ip', db_varchar, 15);
