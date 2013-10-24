@@ -128,6 +128,9 @@ class User_Actions extends User_Validate_Actions
 		if (!$this->user)
 			throw new Cms_Exception(__('You must be logged in to perform this action', true));
 
+		if (post('account_update'))
+			$this->on_update_account();
+
 		// Process file uploads
 		$this->_process_user_upload($this->user);
 
